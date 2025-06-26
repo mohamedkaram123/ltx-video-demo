@@ -26,12 +26,19 @@ def to_rgb_array(frame):
     return arr.astype(np.uint8)
 
 def img2vid(image: Image.Image, prompt: str):
-    # تهيئة الصورة
     image = image.convert("RGB").resize((768, 512))
 
-    # توليد الإطارات
-    result = pipe(image=image, prompt=prompt, num_frames=24)
-    rgb_frames = [to_rgb_array(f) for f in result.frames]
+    # توليد الفيديو
+    out = pipe(image=image, prompt=prompt, num_frames=24)
+
+    # توحيد الإطارات في قائمة مسطَّحة
+    nested = out.frames
+    flat_frames = []
+    for item in nested:
+        flat_frames.extend(item if isinstance(item, (list, tuple)) else [item])
+
+    # تحويل كل إطار إلى مصفوفة RGB
+    rgb_frames = [to_rgb_array(f) for f in flat_frames]
 
     # كتابة الفيديو
     out_path = "/workspace/out.mp4"
