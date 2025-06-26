@@ -32,13 +32,11 @@ def img2vid(image: Image.Image, prompt: str):
     out = pipe(
     image=image,
     prompt=prompt,
-    num_frames=48,
+    num_frames=120,        # ≃ 5 ثوانٍ عند 24fps
     height=512,
     width=768,
     num_inference_steps=50,
     guidance_scale=3.5,
-    guidance_rescale=0.0,
-    frame_rate=24,
 )
 
     # توحيد الإطارات في قائمة مسطَّحة
