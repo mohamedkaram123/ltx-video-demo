@@ -29,7 +29,17 @@ def img2vid(image: Image.Image, prompt: str):
     image = image.convert("RGB").resize((768, 512))
 
     # توليد الفيديو
-    out = pipe(image=image, prompt=prompt, num_frames=24)
+    out = pipe(
+    image=image,
+    prompt=prompt,
+    num_frames=48,
+    height=512,
+    width=768,
+    num_inference_steps=50,
+    guidance_scale=3.5,
+    guidance_rescale=0.0,
+    frame_rate=24,
+)
 
     # توحيد الإطارات في قائمة مسطَّحة
     nested = out.frames
