@@ -12,17 +12,11 @@ pipe.to("cuda")
 print("✅ Model ready")
 
 def img2vid(image, prompt):
-    # إعداد الصورة
     image = image.convert("RGB").resize((768, 512))
-
-    # توليد الإطارات
-    frames = pipe(image=image, prompt=prompt, num_frames=24).frames  # قائمة PIL
-
-    # تحويل الإطارات إلى RGB وكتابتها في فيديو
-    out_path = "/workspace/out.mp4"
+    frames = pipe(image=image, prompt=prompt, num_frames=24).frames
     rgb_frames = [np.array(f.convert("RGB")) for f in frames]
+    out_path = "/workspace/out.mp4"
     iio.imwrite(out_path, rgb_frames, fps=24)
-
     return out_path
 
 demo = gr.Interface(
