@@ -12,16 +12,19 @@ pipe.to("cuda")
 print("✅ Model ready")
 
 def img2vid(image, prompt):
-    # ضبط حجم الصورة
+    # إعداد الصورة
     image = image.convert("RGB").resize((768, 512))
+
     # توليد الإطارات
     frames = pipe(image=image, prompt=prompt, num_frames=24).frames  # قائمة PIL
-    # حفظ الفيديو
+
+    # تحويل الإطارات إلى RGB وكتابتها في فيديو
     out_path = "/workspace/out.mp4"
-    iio.imwrite(out_path, [np.array(f) for f in frames], fps=24)
+    rgb_frames = [np.array(f.convert("RGB")) for f in frames]
+    iio.imwrite(out_path, rgb_frames, fps=24)
+
     return out_path
 
-# واجهة Gradio
 demo = gr.Interface(
     fn=img2vid,
     inputs=[gr.Image(type="pil"), gr.Textbox(label="Prompt")],
