@@ -1,10 +1,9 @@
 import torch, gradio as gr
-from diffusers import DiffusionPipeline
-import tempfile, os
+from diffusers import LTXImageToVideoPipeline
 
 print("⏳ Downloading & loading LTX-Video …")
-pipe = DiffusionPipeline.from_pretrained(
-    "Lightricks/LTX-Video",          # تحميل مباشر من Hugging Face Hub
+pipe = LTXImageToVideoPipeline.from_pretrained(
+    "Lightricks/LTX-Video",
     torch_dtype=torch.float16,
 )
 try:
@@ -16,27 +15,18 @@ pipe.to("cuda")
 print("✅ Model ready")
 
 def img2vid(image, prompt):
-    # احفظ الصورة في ملف مؤقت
-    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
-        image.save(tmp.name)
-        img_path = tmp.name
-
-    # استدعاء النموذج
+    # تأكد من الحجم المناسب
+    image = image.convert("RGB").resize((768, 512))
     video_frames = pipe(
+        image=image,
         prompt=prompt,
-        conditioning_media_paths=[img_path],
-        conditioning_start_frames=[0],
-        num_frames=24,
+        num_frames=24,      # طول الفيديو
         height=512,
         width=768,
     ).frames
 
-    # حفظ الفيديو
     out_path = "/workspace/out.mp4"
     pipe.save_frames_as_video(video_frames, out_path, fps=24)
-
-    # تنظيف الملف المؤقت
-    os.remove(img_path)
     return out_path
 
 demo = gr.Interface(
@@ -44,6 +34,7 @@ demo = gr.Interface(
     inputs=[gr.Image(type="pil"), gr.Textbox(label="Prompt")],
     outputs=gr.Video(label="Generated video"),
     title="LTX-Video – Image ➜ Video",
+    description="حمّل صورة وأدخل Prompt لتحويلها إلى فيديو.",
 )
 
 if __name__ == "__main__":
