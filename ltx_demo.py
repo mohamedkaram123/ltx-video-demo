@@ -1,11 +1,12 @@
 import torch, gradio as gr
 from diffusers import DiffusionPipeline
 
-print("⏳ Loading LTX-Video …")
-pipe = DiffusionPipeline.from_pretrained(
-    "/workspace/LTX-Video/LTX-Video",
+CKPT_PATH = "/workspace/LTX-Video/LTX-Video/ltxv-2b-0.9.6-dev-04-25.safetensors"  # مسار الملف المفرد
+
+print("⏳ Loading LTX-Video single-file checkpoint …")
+pipe = DiffusionPipeline.from_single_file(
+    CKPT_PATH,
     torch_dtype=torch.float16,
-    use_safetensors=True,
 )
 try:
     pipe.enable_xformers_memory_efficient_attention()
@@ -26,7 +27,6 @@ demo = gr.Interface(
     inputs=[gr.Image(type="pil"), gr.Textbox(label="Prompt")],
     outputs=gr.Video(label="Generated video"),
     title="LTX-Video – Image ➜ Video",
-    description="حمّل صورة ثم أدخل Prompt لتحويلها إلى فيديو 24-fps.",
 )
 
 if __name__ == "__main__":
